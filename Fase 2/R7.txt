@@ -1,0 +1,27 @@
+#Configuração IPs interfaces
+config t
+hostname R7
+int f0/0
+ip address 10.3.10.1 255.255.255.0
+No shut
+int f0/1
+ip address 42.42.42.2 255.255.255.252
+No shut
+int f1/0
+ip address 26.26.26.2 255.255.255.0
+No shut
+Int loopback 7
+Ip add 7.7.7.7 255.255.255.255
+No shut
+End
+
+#BGP
+config t
+router bgp 2860
+redistribute connected
+neighbor 42.42.42.1 remote-as 174
+neighbor 26.26.26.1 remote-as 3243
+network 10.3.10.0 mask 255.255.255.0
+Redistribute ospf 1
+End
+

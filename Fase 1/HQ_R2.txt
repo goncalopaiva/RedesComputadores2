@@ -1,0 +1,116 @@
+#HQ_R2
+
+#Atribuição IPS
+Config t
+Int g0/0
+Ip add 10.0.47.130 255.255.255.248
+No shut
+Int g0/1
+Ip add 10.0.47.1 255.255.255.128
+No shut
+Int g0/2
+Ip add 10.0.44.1 255.255.254.0
+No shut
+Int g0/3
+Ip add 10.0.46.1 255.255.255.0
+No shut
+End 
+
+#DHCP
+config t
+interface g0/1
+ip helper-address 10.0.47.129
+no shut
+exit
+interface g0/2
+ip helper-address 10.0.47.129
+no shut
+exit
+interface g0/3
+ip helper-address 10.0.47.129
+no shut
+end
+
+#ACL
+#Permitir tráfego Guest/Private quando iniciado em Private
+conf t
+ip access-list extended GuestPrivate
+deny icmp 10.0.47.0 0.0.0.127 10.0.44.0 0.0.1.255 echo
+#deny ip 10.0.47.0 0.0.0.127 10.0.44.0 0.0.1.255
+
+#Porta 80 server
+permit tcp any host 10.0.45.254 eq 80
+deny tcp any host 10.0.45.254 neq 80
+
+#Client1 -> Server porta 22
+permit tcp host 10.0.45.253 host 10.0.45.254 eq 22
+deny tcp any host 10.0.45.254 eq 22
+permit ip any any
+end
+conf t
+int g0/2
+ip access-group GuestPrivate out
+end
+
+#Impedir que tráfego com origem em guest atinja Security
+conf t
+ip access-list extended GuestSecurity
+deny icmp 10.0.47.0 0.0.0.127 10.0.46.0 0.0.0.255 echo
+#deny ip 10.0.47.0 0.0.0.127 10.0.46.0 0.0.0.255 
+permit ip any any
+end
+conf t
+int g0/3
+ip access-group GuestSecurity out
+end
+
+
+#Apagar ACLS
+conf t
+no ip access-list extended GuestPrivate
+no ip access-list extended GuestSecurity
+no ip access-list extended ServerPort
+no ip access-list extended ServerSSH
+no ip access-list standard 1
+int g0/0 
+no ip access-group GuestPrivate in
+no ip access-group GuestPrivate out
+no ip access-group GuestSecurity in
+no ip access-group GuestSecurity out
+no ip access-group ServerPort in
+no ip access-group ServerPort out
+no ip access-group ServerSSH in
+no ip access-group ServerSSH out
+int g0/1
+no ip access-group GuestPrivate in
+no ip access-group GuestPrivate out
+no ip access-group GuestSecurity in
+no ip access-group GuestSecurity out
+no ip access-group ServerPort in
+no ip access-group ServerPort out
+no ip access-group ServerSSH in
+no ip access-group ServerSSH out
+int g0/2
+no ip access-group GuestPrivate in
+no ip access-group GuestPrivate out
+no ip access-group GuestSecurity in
+no ip access-group GuestSecurity out
+no ip access-group ServerPort in
+no ip access-group ServerPort out
+no ip access-group ServerSSH in
+no ip access-group ServerSSH out
+no ip access-group 1 in
+no ip access-group 1 out
+int g0/3
+no ip access-group GuestPrivate in
+no ip access-group GuestPrivate out
+no ip access-group GuestSecurity in
+no ip access-group GuestSecurity out
+no ip access-group ServerPort in
+no ip access-group ServerPort out
+no ip access-group ServerSSH in
+no ip access-group ServerSSH out
+end
+
+
+wr

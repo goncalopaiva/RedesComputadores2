@@ -1,0 +1,56 @@
+##Configuração IPs interfaces
+config t
+hostname R3
+int f0/0
+ip address 11.11.11.2 255.255.255.0
+No shut
+int f0/1
+ip address 26.26.26.1 255.255.255.0
+No shut
+int f1/0
+ip address 25.25.25.1 255.255.255.252
+No shut
+Int loopback 3
+Ip add 3.3.3.3 255.255.255.255
+No shut
+End
+
+##OSPF - AS3243
+config t
+router ospf 1
+network 11.11.11.0 0.0.0.255 area 0
+default-information originate
+End
+
+
+#BGP
+Config t
+Router bgp 3243
+redistribute connected
+neighbor 25.25.25.2 remote-as 174
+neighbor 26.26.26.2 remote-as 2860
+Neighbor 10.10.10.2 remote-as 3243
+Neighbor 11.11.11.1 remote-as 3243
+Neighbor 11.11.11.3 remote-as 3243
+
+#Preferir R6 a R7
+Neighbor 25.25.25.2 weight 500
+Neighbor 26.26.26.2 weight 200
+
+#AS3243 preferir R4
+bgp default local-preference 100
+network 11.11.11.0 mask 255.255.255.0
+Redistribute ospf 1
+end
+
+#AS3243 influencia AS174 a preferir R3 a R4
+Config t
+Route-map setmetricout
+Set metric 100
+Exit
+Router bgp 3243
+Neighbor 25.25.25.2 route-map setmetricout out
+End
+
+
+

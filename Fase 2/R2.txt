@@ -1,0 +1,39 @@
+
+#Configuração IPs interfaces
+config t
+hostname R2
+int f0/0
+ip address 10.10.10.2 255.255.255.0
+No shut
+int f0/1
+ip address 11.11.11.1 255.255.255.0
+No shut
+Int loopback 2
+Ip add 2.2.2.2 255.255.255.255
+No shut
+End
+
+#OSPF - AS3243
+config t
+router ospf 1
+network 11.11.11.0 0.0.0.255 area 0
+network 10.10.10.0 0.0.0.255 area 2
+default-information originate
+end
+
+#BGP
+Config t
+Router bgp 3243
+redistribute connected
+Neighbor 10.10.10.1 remote-as 3243
+Neighbor 11.11.11.2 remote-as 3243
+Redistribute ospf 1
+End
+
+#MPLS
+Config t
+Int f0/0
+Mpls ip
+Int f0/1
+Mpls ip
+End

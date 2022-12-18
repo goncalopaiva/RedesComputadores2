@@ -1,0 +1,30 @@
+#Configuração IPs interfaces
+config t
+hostname R6
+int f0/0
+ip address 42.42.42.1 255.255.255.252
+No shut
+int f0/1
+ip address 24.24.24.2 255.255.255.252
+No shut
+int f1/0
+ip address 25.25.25.2 255.255.255.252
+No shut
+int f2/0
+ip address 27.27.27.1 255.255.255.0
+No shut
+Int loopback 6
+Ip add 6.6.6.6 255.255.255.255
+No shut
+End
+
+#BGP
+config t
+router bgp 174
+redistribute connected
+neighbor 24.24.24.1 remote-as 3243
+neighbor 25.25.25.1 remote-as 3243
+neighbor 42.42.42.2 remote-as 2860
+network 24.24.24.0 mask 255.255.255.252
+Redistribute ospf 1
+End

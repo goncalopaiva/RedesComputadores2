@@ -1,0 +1,35 @@
+#BR1_R1
+
+#Atribuição IPS
+Config t
+Int g0/0
+Ip add 209.10.10.2 255.255.255.248
+No shut
+End 
+
+#ACLs
+#Permitir só HQ -> BD
+config t
+Ip access-list extended HQ_BD
+Permit ip 10.0.44.0 0.0.0.255 10.0.44.1
+Deny ip any any
+Exit
+Conf t
+Int g0/1
+Ip access-group HQ_BD in
+Int g0/0
+Ip access-group HQ_BD out
+End
+
+#NAT
+debug ip nat 
+Conf t
+Int g0/0
+Ip nat outside
+Int g0/1
+Ip nat inside
+End
+
+
+Wr
+

@@ -1,0 +1,70 @@
+#Configuração IPs interfaces
+config t
+hostname R5
+int f0/0
+ip address 12.12.12.2 255.255.255.0
+No shut
+int f0/1
+ip address 209.10.11.1 255.255.255.0
+No shut
+Int loopback 5
+Ip add 5.5.5.5 255.255.255.255
+No shut
+End
+
+#OSPF - AS3243
+config t
+router ospf 1
+network 12.12.12.0 0.0.0.255 area 1
+default-information originate
+end
+
+
+#BGP
+Config t
+Router bgp 3243
+redistribute connected
+Neighbor 12.12.12.1 remote-as 3243
+Redistribute ospf 1
+End
+
+#MPLS
+Config t
+Int f0/1
+Mpls ip
+End
+
+Config t
+Ip vrf CE
+Rd 3243:1
+Route-target both 3243:1
+End
+
+Config t
+Int f0/1
+Ip vrf forwarding CE
+ip address 209.10.11.1 255.255.255.0
+End
+
+Config t
+Router bgp 3243
+Neighbor 1.1.1.1 remote-as 3243
+Neighbor 1.1.1.1 update-source loopback 0
+Address-family vpnv4
+Neighbor 1.1.1.1 activate 
+End
+
+
+Config t
+Router ospf 3 vrf CE
+router-id 209.10.11.1
+Int f0/0
+Ip ospf 3 area 0
+
+
+Conf t
+Router bgp 3243
+Address-family ipv4 vrf CE
+Redistribute ospf 3
+End
+

@@ -1,0 +1,46 @@
+#HQ_R1
+
+#Atribuição IPS
+Config t
+Int g0/0
+Ip add 209.10.10.1 255.255.255.248
+No shut
+Int g0/1
+Ip add 10.0.47.129 255.255.255.248
+No shut
+End 
+
+
+#Rotas
+Config t
+Ip route 10.0.47.0 255.255.255.128 10.0.47.130
+Ip route 10.0.44.0 255.255.254.0 10.0.47.130
+Ip route 10.0.46.0 255.255.255.0 10.0.47.130
+End
+
+#DHCP
+Config t 
+ip dhcp excluded-address 10.0.44.1 10.0.44.250 
+ip dhcp excluded-address 10.0.46.1 10.0.46.50 
+ip dhcp excluded-address 10.0.47.1
+Ip dhcp pool Guest
+Network 10.0.47.0 255.255.255.128
+Exit
+Ip DHCP pool Private
+Network 10.0.44.0 255.255.254.0
+Exit
+Ip DHCP pool Security
+Network 10.0.46.0 255.255.255.0
+End
+
+#NAT
+debug ip nat 
+Conf t
+Int g0/0
+Ip nat outside
+Int g0/1
+Ip nat inside
+End
+
+
+Wr

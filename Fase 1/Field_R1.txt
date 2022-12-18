@@ -1,0 +1,26 @@
+#Field_R1
+
+#Atribuição IPS
+Config t
+Int g0/0
+Ip add 10.25.202.2 255.255.255.0
+No shut
+End 
+
+
+#NAT
+debug ip nat 
+Conf t
+Int g0/0
+Ip nat outside
+Int g0/1
+Ip nat inside
+Int g0/2
+Ip nat inside
+Int g0/3
+Ip nat inside
+End
+
+
+Wr
+Ss

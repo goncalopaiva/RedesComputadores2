@@ -1,0 +1,67 @@
+--------------------> FASE 1 <--------------------
+
+----------> DHCP <----------
+#HQ_R1: 
+Sh ip DHCP pool
+
+#PC1
+Ip DHCP
+
+----------> ACLs <----------
+#Permitir tráfego Guest/Private quando iniciado em Private
+Guest1: ping 10.0.45.253
+Client1: ping 10.0.47.2
+
+#Impedir que tráfego com origem em guest atinja Security
+Guest1: ping 10.0.46.51
+
+
+#Permitir tráfego endereçado Server se destinado à porta 80
+#IPCam
+nping --tcp -p 80 10.0.45.254
+
+#Permitir só Client1 aceder a server via SSH (22)
+Client1
+nping --tcp -p 22 10.0.45.254
+
+IPCam
+nping --tcp -p 22 10.0.45.254
+
+
+
+
+#HOSTS
+
+#Guest1
+
+ip route add 10.0.44.0/23 via 10.0.47.1
+ip route add 10.0.47.0/25 via 10.0.47.1
+ip route add 10.0.46.0/24 via 10.0.47.1
+
+ip route 10.0.44.0/23 10.0.47.1
+ip route 10.0.47.0 255.255.255.128 10.0.47.1
+ip route 10.0.46.0 255.255.255.0 10.0.47.1
+
+
+#Client1
+
+ip route add 10.0.44.0/23 via 10.0.44.1
+ip route add 10.0.47.0/25 via 10.0.44.1
+ip route add 10.0.46.0/24 via 10.0.44.1
+
+
+#Server
+
+ip route add 10.0.44.0/23 via 10.0.44.1
+ip route add 10.0.47.0/25 via 10.0.44.1
+ip route add 10.0.46.0/24 via 10.0.44.1
+
+
+#IPCam
+
+ip route add 10.0.44.0/23 via 10.0.46.1
+ip route add 10.0.47.0/25 via 10.0.46.1
+ip route add 10.0.46.0/24 via 10.0.46.1
+
+
+
